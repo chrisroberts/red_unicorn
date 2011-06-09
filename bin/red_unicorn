@@ -1,0 +1,115 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'getoptlong'
+
+require 'red_unicorn'
+require 'red_unicorn/unicorn'
+
+opts = GetoptLong.new(
+  ['--pid-file', '-p', GetoptLong::REQUIRED_ARGUMENT],
+  ['--unicorn-exec', '-x', GetoptLong::REQUIRED_ARGUMENT],
+  ['--unicorn-config', '-c', GetoptLong::REQUIRED_ARGUMENT],
+  ['--timeout', '-t', GetoptLong::REQUIRED_ARGUMENT],
+  ['--help', '-h', GetoptLong::NO_ARGUMENT],
+  ['--env', '-e', GetoptLong::REQUIRED_ARGUMENT]
+)
+
+ALLOWED_ACTIONS = {
+  :start => 'Start unicorn',
+  :stop => 'Stop unicorn',
+  :restart => 'Gracefully restart unicorn (zero downtime)',
+  :reload => 'Reload unicorn configuration',
+  :birth => 'Create new worker process',
+  :prolicide => 'Kill single worker process',
+  :slaughter => 'Kill all worker processes (master remains)',
+  :status => 'Returns current unicorn status'
+}
+
+RETURN_CODES = {
+  :success => 0,
+  :invalid_action => 1,
+  :action_failed => 2,
+  :not_running => 3
+}
+
+def try_block
+  begin
+    yield
+    [RETURN_CODES[:success], nil]
+  rescue => e
+    [RETURN_CODES[:action_failed], e]
+  end
+end
+
+def print_help
+  puts 'RedUnicorn::Unicorn: Unicorn process interactions'
+  puts "Usage: red_unicorn [opts] (#{ALLOWED_ACTIONS.keys.join(' | ')})"
+  puts ' -h, --help                             Show this help screen'
+  puts ' -p, --pid /path/to/file.pid            Specify path to PID file (default: /var/run/unicorn/unicorn.pid)'
+  puts ' -x, --unicorn-exec /path/to/unicorn    Specify path to unicorn executable (default: /var/www/shared/bundle/bin/unicorn_rails)'
+  puts ' -c, --unicorn-config /path/to/config   Specify path to unicorn configuration file (default: /etc/unicorn/app.rb)'
+  puts ' -t, --timeout 30                       Specify timeout for running actions'
+  puts ' -e, --env production                   Specify environment (default: production)'
+  puts 'Commands:'
+  max_width = ALLOWED_ACTIONS.keys.map(&:to_s).map(&:length).max + 8
+  ALLOWED_ACTIONS.each_pair do |action, message|
+    puts "  #{action}:#{' ' * (max_width - action.to_s.length)}#{message}"
+  end
+end
+
+unicorn_hash = {}
+opts.each do |opt,arg|
+  case opt
+    when '--timeout'
+      unicorn_hash[:action_timeout] = arg.to_i
+    when '--unicorn-config'
+      unicorn_hash[:unicorn_config] = arg.to_s
+    when '--unicorn-exec'
+      unicorn_hash[:exec_path] = arg.to_s
+    when '--pid'
+      unicorn_hash[:pid] = arg.to_s
+    when '--env'
+      unicorn_hash[:env] = arg.to_s
+    when '--help'
+      print_help
+      exit RETURN_CODES[:success]
+  end
+end
+
+unicorn = RedUnicorn::Unicorn.new(unicorn_hash)
+
+action = ARGV.first
+result = nil
+error = nil
+
+case action
+  when 'start'
+    result,error = try_block{ unicorn.start }
+  when 'stop'
+    result,error = try_block{ unicorn.stop }
+  when 'restart'
+    result,error = try_block{ unicorn.restart }
+  when 'reload'
+    result,error = try_block{ unicorn.reload }
+  when 'birth'
+    result,error = try_block{ unicorn.add_child }
+  when 'prolicide'
+    result,error = try_block{ unicorn.remove_child }
+  when 'slaughter'
+    result,error = try_block{ unicorn.remove_all_children }
+  when 'status'
+    result,error = try_block{ unicorn.status }
+    result = RETURN_CODES[:not_running] if error
+  else
+    puts "ERROR: Invalid action received: #{action}"
+    exit RETURN_CODES[:invalid_action]
+end
+
+if(result == RETURN_CODES[:success])
+  puts "Unicorn action #{action} completed successfully."
+else
+  puts "ERROR: Unicorn action #{action} failed. Please check error logs.\n#{error.class.name}: #{error}\n#{error.backtrace.join("\n")}"
+end
+
+exit result

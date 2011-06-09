@@ -1,0 +1,43 @@
+== RedUnicorn
+
+RedUnicorn provides easy interaction with unicorn processes. It uses signals
+to communicate with unicorn to check its status, stop the processes or to
+provide zero downtime restarts. 
+
+=== Usage
+
+  $ red_unicorn --help
+  RedUnicorn::Unicorn: Unicorn process interactions
+  Usage: red_unicorn [opts] (prolicide | status | slaughter | start | restart | reload | stop | birth)
+   -h, --help                             Show this help screen
+   -p, --pid /path/to/file.pid            Specify path to PID file (default: /var/run/unicorn/unicorn.pid)
+   -x, --unicorn-exec /path/to/unicorn    Specify path to unicorn executable (default: /var/www/shared/bundle/bin/unicorn_rails)
+   -c, --unicorn-config /path/to/config   Specify path to unicorn configuration file (default: /etc/unicorn/app.rb)
+   -t, --timeout 30                       Specify timeout for running actions
+   -e, --env production                   Specify environment (default: production)
+  Commands:
+    prolicide:        Kill single worker process
+    status:           Returns current unicorn status
+    slaughter:        Kill all worker processes (master remains)
+    start:            Start unicorn
+    restart:          Gracefully restart unicorn (zero downtime)
+    reload:           Reload unicorn configuration
+    stop:             Stop unicorn
+    birth:            Create new worker process
+
+=== Zero downtime restarts
+
+RedUnicorn does its best to provide true zero downtime restarts. After sending
+unicorn the restart signal, it will wait until the new unicorn process has forked
+out workers before killing the original unicorn process. If no worker processes
+are started, the old unicorn process will be left running.
+
+== Bugs and Feature requests
+
+* Fork, make updates and send pull request
+* Report bugs through github's {issues}[http://github.com/chrisroberts/red_unicorn/issues]
+
+== License
+
+Copyright (c) 2011 Chris Roberts <chrisroberts.code@gmail.com>
+Licensed under the MIT license (see LICENSE)
