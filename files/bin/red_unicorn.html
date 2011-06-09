@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang='en'>
+  <head>
+    <title>File: red_unicorn [RDoc Documentation]</title>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type'>
+    <link href='../../rdoc-style.css' media='screen' rel='stylesheet' type='text/css'>
+    <script type='text/javascript'>
+      //<![CDATA[
+        function popupCode(url) {
+          window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+        }
+        
+        function toggleCode(id) {
+          var code = document.getElementById(id)
+        
+          code.style.display = code.style.display != 'block' ? 'block' : 'none'
+          return true
+        }
+        
+        // Make codeblocks hidden by default
+        document.writeln('<' + 'style type="text/css">.method .source pre { display: none }<\/style>')
+      //]]>
+    </script>
+  </head>
+  <body class='page'>
+    <div class='file' id='wrapper'>
+      <div class='header'>
+        <h1 class='name'>red_unicorn</h1>
+        <div class='paths'>
+          bin/red_unicorn
+        </div>
+        <div class='last-update'>
+          Last Update:
+          <span class='datetime'>Wed Jun 08 18:18:15 -0700 2011</span>
+        </div>
+      </div>
+      <div id='content'>
+        <div id='text'>
+          <div id='method-list'>
+            <h2>Methods</h2>
+            <h3>public instance</h3>
+            <ol>
+              <li><a href="#M000002">print_help</a></li>
+              <li><a href="#M000001">try_block</a></li>
+            </ol>
+          </div>
+          <div id='context'>
+            <div id='requires'>
+              <h2>Required files</h2>
+              <ol>
+                <li>rubygems</li>
+                <li>getoptlong</li>
+                <li>red_unicorn</li>
+                <li>red_unicorn/unicorn</li>
+              </ol>
+            </div>
+          </div>
+          <div id='section'>
+            <div id='constants-list'>
+              <h2>Constants</h2>
+              <div class='name-list'>
+                <table summary='Constants'>
+                  <tr class='top-aligned-row context-row'>
+                    <td class='context-item-name'>ALLOWED_ACTIONS</td>
+                    <td>=</td>
+                    <td class='context-item-value'>{   :start =&gt; 'Start unicorn',   :stop =&gt; 'Stop unicorn',   :restart =&gt; 'Gracefully restart unicorn (zero downtime)',   :reload =&gt; 'Reload unicorn configuration',   :birth =&gt; 'Create new worker process',   :prolicide =&gt; 'Kill single worker process',   :slaughter =&gt; 'Kill all worker processes (master remains)',   :status =&gt; 'Returns current unicorn status' }</td>
+                  </tr>
+                  <tr class='top-aligned-row context-row'>
+                    <td class='context-item-name'>RETURN_CODES</td>
+                    <td>=</td>
+                    <td class='context-item-value'>{   :success =&gt; 0,   :invalid_action =&gt; 1,   :action_failed =&gt; 2,   :not_running =&gt; 3 }</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+            <div id='methods'>
+              <h2>Public instance methods</h2>
+              <div class='method public-instance' id='method-M000002'>
+                <a name='M000002'></a>
+                <div class='synopsis'>
+                  <span class='name'>print_help</span>
+                  <span class='arguments'>()</span>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('M000002-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='M000002-source'><span class="ruby-comment cmt"># File bin/red_unicorn, line 45</span>&#x000A;<span class="ruby-keyword kw">def</span> <span class="ruby-identifier">print_help</span>&#x000A;  <span class="ruby-identifier">puts</span> <span class="ruby-value str">'RedUnicorn::Unicorn: Unicorn process interactions'</span>&#x000A;  <span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;Usage: red_unicorn [opts] (#{ALLOWED_ACTIONS.keys.join(' | ')})&quot;</span>&#x000A;  <span class="ruby-identifier">puts</span> <span class="ruby-value str">' -h, --help                             Show this help screen'</span>&#x000A;  <span class="ruby-identifier">puts</span> <span class="ruby-value str">' -p, --pid /path/to/file.pid            Specify path to PID file (default: /var/run/unicorn/unicorn.pid)'</span>&#x000A;  <span class="ruby-identifier">puts</span> <span class="ruby-value str">' -x, --unicorn-exec /path/to/unicorn    Specify path to unicorn executable (default: /var/www/shared/bundle/bin/unicorn_rails)'</span>&#x000A;  <span class="ruby-identifier">puts</span> <span class="ruby-value str">' -c, --unicorn-config /path/to/config   Specify path to unicorn configuration file (default: /etc/unicorn/app.rb)'</span>&#x000A;  <span class="ruby-identifier">puts</span> <span class="ruby-value str">' -t, --timeout 30                       Specify timeout for running actions'</span>&#x000A;  <span class="ruby-identifier">puts</span> <span class="ruby-value str">' -e, --env production                   Specify environment (default: production)'</span>&#x000A;  <span class="ruby-identifier">puts</span> <span class="ruby-value str">'Commands:'</span>&#x000A;  <span class="ruby-identifier">max_width</span> = <span class="ruby-constant">ALLOWED_ACTIONS</span>.<span class="ruby-identifier">keys</span>.<span class="ruby-identifier">map</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">:to_s</span>).<span class="ruby-identifier">map</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">:length</span>).<span class="ruby-identifier">max</span> <span class="ruby-operator">+</span> <span class="ruby-value">8</span>&#x000A;  <span class="ruby-constant">ALLOWED_ACTIONS</span>.<span class="ruby-identifier">each_pair</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">action</span>, <span class="ruby-identifier">message</span><span class="ruby-operator">|</span>&#x000A;    <span class="ruby-identifier">puts</span> <span class="ruby-node">&quot;  #{action}:#{' ' * (max_width - action.to_s.length)}#{message}&quot;</span>&#x000A;  <span class="ruby-keyword kw">end</span>&#x000A;<span class="ruby-keyword kw">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-instance' id='method-M000001'>
+                <a name='M000001'></a>
+                <div class='synopsis'>
+                  <span class='name'>try_block</span>
+                  <span class='arguments'>() {|| ...}</span>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('M000001-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='M000001-source'><span class="ruby-comment cmt"># File bin/red_unicorn, line 36</span>&#x000A;<span class="ruby-keyword kw">def</span> <span class="ruby-identifier">try_block</span>&#x000A;  <span class="ruby-keyword kw">begin</span>&#x000A;    <span class="ruby-keyword kw">yield</span>&#x000A;    [<span class="ruby-constant">RETURN_CODES</span>[<span class="ruby-identifier">:success</span>], <span class="ruby-keyword kw">nil</span>]&#x000A;  <span class="ruby-keyword kw">rescue</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">e</span>&#x000A;    [<span class="ruby-constant">RETURN_CODES</span>[<span class="ruby-identifier">:action_failed</span>], <span class="ruby-identifier">e</span>]&#x000A;  <span class="ruby-keyword kw">end</span>&#x000A;<span class="ruby-keyword kw">end</span></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id='footer-push'></div>
+    </div>
+    <div id='footer'>
+      <a href="http://github.com/mislav/hanna/tree/master"><strong>Hanna</strong> RDoc template</a>
+    </div>
+  </body>
+</html>

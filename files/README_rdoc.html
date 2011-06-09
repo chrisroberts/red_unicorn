@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang='en'>
+  <head>
+    <title>File: README.rdoc [RDoc Documentation]</title>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type'>
+    <link href='../rdoc-style.css' media='screen' rel='stylesheet' type='text/css'>
+    <script type='text/javascript'>
+      //<![CDATA[
+        function popupCode(url) {
+          window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+        }
+        
+        function toggleCode(id) {
+          var code = document.getElementById(id)
+        
+          code.style.display = code.style.display != 'block' ? 'block' : 'none'
+          return true
+        }
+        
+        // Make codeblocks hidden by default
+        document.writeln('<' + 'style type="text/css">.method .source pre { display: none }<\/style>')
+      //]]>
+    </script>
+  </head>
+  <body class='page'>
+    <div class='file' id='wrapper'>
+      <div class='header'>
+        <h1 class='name'>README.rdoc</h1>
+        <div class='paths'>
+          README.rdoc
+        </div>
+        <div class='last-update'>
+          Last Update:
+          <span class='datetime'>Wed Jun 08 18:51:54 -0700 2011</span>
+        </div>
+      </div>
+      <div id='content'>
+        <div id='text'>
+          <div id='description'>
+            <h2><a href="../classes/RedUnicorn.html">RedUnicorn</a></h2>
+            <p>
+            <a href="../classes/RedUnicorn.html">RedUnicorn</a> provides easy
+            interaction with unicorn processes. It uses signals to communicate with
+            unicorn to check its status, stop the processes or to provide zero downtime
+            restarts.
+            </p>
+            <h3>Usage</h3>
+            <pre>$ red_unicorn --help&#x000A;RedUnicorn::Unicorn: Unicorn process interactions&#x000A;Usage: red_unicorn [opts] (prolicide | status | slaughter | start | restart | reload | stop | birth)&#x000A; -h, --help                             Show this help screen&#x000A; -p, --pid /path/to/file.pid            Specify path to PID file (default: /var/run/unicorn/unicorn.pid)&#x000A; -x, --unicorn-exec /path/to/unicorn    Specify path to unicorn executable (default: /var/www/shared/bundle/bin/unicorn_rails)&#x000A; -c, --unicorn-config /path/to/config   Specify path to unicorn configuration file (default: /etc/unicorn/app.rb)&#x000A; -t, --timeout 30                       Specify timeout for running actions&#x000A; -e, --env production                   Specify environment (default: production)&#x000A;Commands:&#x000A;  prolicide:        Kill single worker process&#x000A;  status:           Returns current unicorn status&#x000A;  slaughter:        Kill all worker processes (master remains)&#x000A;  start:            Start unicorn&#x000A;  restart:          Gracefully restart unicorn (zero downtime)&#x000A;  reload:           Reload unicorn configuration&#x000A;  stop:             Stop unicorn&#x000A;  birth:            Create new worker process</pre>
+            <h3>Zero downtime restarts</h3>
+            <p>
+            <a href="../classes/RedUnicorn.html">RedUnicorn</a> does its best to
+            provide true zero downtime restarts. After sending unicorn the restart
+            signal, it will wait until the new unicorn process has forked out workers
+            before killing the original unicorn process. If no worker processes are
+            started, the old unicorn process will be left running.
+            </p>
+            <h2>Bugs and Feature requests</h2>
+            <ul>
+            <li>Fork, make updates and send pull request
+            
+            </li>
+            <li>Report bugs through github&#8217;s <a
+            href="http://github.com/chrisroberts/red_unicorn/issues">issues</a>
+            
+            </li>
+            </ul>
+            <h2>License</h2>
+            <p>
+            Copyright &#169; 2011 Chris Roberts <chrisroberts.code@gmail.com> Licensed
+            under the MIT license (see <a href="LICENSE.html">LICENSE</a>)
+            </p>
+          </div>
+          <div id='section'>
+          </div>
+        </div>
+      </div>
+      <div id='footer-push'></div>
+    </div>
+    <div id='footer'>
+      <a href="http://github.com/mislav/hanna/tree/master"><strong>Hanna</strong> RDoc template</a>
+    </div>
+  </body>
+</html>
