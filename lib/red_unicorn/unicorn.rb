@@ -24,6 +24,7 @@ module RedUnicorn
         :exec_path => '/var/www/shared/bundle/bin/unicorn_rails',
         :config_path => '/etc/unicorn/app.rb',
         :action_timeout => 30,
+        :restart_grace => 8,
         :env => 'production'
       }.merge(opts)
       check_exec_path
@@ -55,7 +56,7 @@ module RedUnicorn
       process_is :running do
         original_pid = pid
         Process.kill('USR2', pid)
-        sleep(0.1) # give unicorn some breathing room
+        sleep(@opts[:restart_grace]) # give unicorn some breathing room
         waited = 0
         until((File.exists?(@opts[:pid]) && is_running? && !child_pids(pid).empty?) || waited > @opts[:action_timeout])
           sleep_start = Time.now.to_f

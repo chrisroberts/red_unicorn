@@ -11,6 +11,7 @@ opts = GetoptLong.new(
   ['--unicorn-exec', '-x', GetoptLong::REQUIRED_ARGUMENT],
   ['--unicorn-config', '-c', GetoptLong::REQUIRED_ARGUMENT],
   ['--timeout', '-t', GetoptLong::REQUIRED_ARGUMENT],
+  ['--restart-grace', '-g', GetoptLong::REQUIRED_ARGUMENT],
   ['--help', '-h', GetoptLong::NO_ARGUMENT],
   ['--env', '-e', GetoptLong::REQUIRED_ARGUMENT]
 )
@@ -50,6 +51,7 @@ def print_help
   puts ' -x, --unicorn-exec /path/to/unicorn    Specify path to unicorn executable (default: /var/www/shared/bundle/bin/unicorn_rails)'
   puts ' -c, --unicorn-config /path/to/config   Specify path to unicorn configuration file (default: /etc/unicorn/app.rb)'
   puts ' -t, --timeout 30                       Specify timeout for running actions'
+  puts ' -g, --restart-grace 8                  Specify grace time to start replacement children (default: 8 seconds)'
   puts ' -e, --env production                   Specify environment (default: production)'
   puts 'Commands:'
   max_width = ALLOWED_ACTIONS.keys.map(&:to_s).map(&:length).max + 8
@@ -63,6 +65,8 @@ opts.each do |opt,arg|
   case opt
     when '--timeout'
       unicorn_hash[:action_timeout] = arg.to_i
+    when '--restart-grace'
+      unicorn_hash[:restart_grace] = arg.to_i
     when '--unicorn-config'
       unicorn_hash[:unicorn_config] = arg.to_s
     when '--unicorn-exec'
