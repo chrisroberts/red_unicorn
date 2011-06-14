@@ -14,6 +14,7 @@ provide zero downtime restarts.
    -x, --unicorn-exec /path/to/unicorn    Specify path to unicorn executable (default: /var/www/shared/bundle/bin/unicorn_rails)
    -c, --unicorn-config /path/to/config   Specify path to unicorn configuration file (default: /etc/unicorn/app.rb)
    -t, --timeout 30                       Specify timeout for running actions
+   -g, --restart-grace 8                  Specify grace time to start replacement children (default: 8 seconds)
    -e, --env production                   Specify environment (default: production)
   Commands:
     prolicide:        Kill single worker process
