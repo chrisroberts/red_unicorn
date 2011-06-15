@@ -1,2 +1,5 @@
+== v1.1.0
+* Provide configurable restart grace period (thanks {Darrin}[http://github.com/dje])
+
 == v1.0.0
 * Initial release
