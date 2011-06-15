@@ -1,4 +1,3 @@
-#TODO: Add method of checking for rouge unicorn process and killing them
 module RedUnicorn
 
   # Descriptive error classes
@@ -11,6 +10,8 @@ module RedUnicorn
   class NotRunning < UnicornError
   end
   class IsRunning < UnicornError
+  end
+  class Timeout < ActionFailed
   end
 
   class Unicorn
@@ -25,9 +26,11 @@ module RedUnicorn
         :config_path => '/etc/unicorn/app.rb',
         :action_timeout => 30,
         :restart_grace => 8,
+        :kill_rogues => false,
         :env => 'production'
       }.merge(opts)
       check_exec_path
+      kill_rogues_before_commands(@opts[:kill_rogues])
     end
 
     # Start a new unicorn process
@@ -56,24 +59,33 @@ module RedUnicorn
       process_is :running do
         original_pid = pid
         Process.kill('USR2', pid)
-        sleep(@opts[:restart_grace]) # give unicorn some breathing room
+        waited = 0
+        until((pid && pid != original_pid) || waited > @opts[:restart_grace])
+          waited += nap(0.1)
+        end
+        if(waited > @opts[:restart_grace])
+          raise Timeout.new("Reached max restart grace time. No new unicorn process found after #{@opts[:restart_grace]} seconds.") 
+        end
         waited = 0
         until((File.exists?(@opts[:pid]) && is_running? && !child_pids(pid).empty?) || waited > @opts[:action_timeout])
-          sleep_start = Time.now.to_f
-          sleep(0.2)
-          waited += Time.now.to_f - sleep_start
+          waited += nap(0.2)
         end
         if(pid == original_pid || waited > @opts[:action_timeout])
           raise UnicornError.new 'Failed to start new process'
         end
         Process.kill('QUIT', original_pid)
         while(is_running?(original_pid) && waited < @opts[:action_timeout])
-          sleep_start = Time.now.to_f
-          sleep(0.2)
-          waited += Time.now.to_f - sleep_start
+          waited += nap(0.2)
         end
-        raise IsRunning.new 'Failed to stop original unicorn process' if is_running?(original_pid)
-        raise NotRunning.new 'Failed to start new unicorn process'  unless is_running?
+        errors = ['Failed to stop original unicorn process.'] if is_running?(original_pid)
+        errors.push('Failed to start new unicorn process.') unless is_running?
+        if(waited > @opts[:action_timeout])
+          raise Timeout.new("Reached max action timeout after #{@opts[:action_timeout]} seconds. #{errors.join(' ')}")
+        elsif(is_running?(original_pid))
+          raise IsRunning.new(errors.join(' '))
+        elsif(!is_running?)
+          raise NotRunning.new(errors.join(' '))
+        end
         reopen_logs
       end
     end
@@ -124,11 +136,15 @@ module RedUnicorn
     private
 
     # Return process ID from PID file
-    def pid
+    def pid(noraise = false)
       if(File.exists?(@opts[:pid]))
         File.read(@opts[:pid]).to_s.strip.to_i
       else
-        raise FileNotFound.new "PID file not found. Provided path: #{@opts[:pid]}"
+        if(noraise)
+          false
+        else
+          raise FileNotFound.new "PID file not found. Provided path: #{@opts[:pid]}"
+        end
       end
     end
 
@@ -157,6 +173,31 @@ module RedUnicorn
       yield if block_given?
     end
 
+    # Returns unicorn master pids that are not currently tracked
+    def rogue_pids
+      unicorn_master_pids = %x{ps -eo pid,args | grep "unicorn.*master" | grep -v grep}.map{|line| line.split(' ').first.strip.to_i}
+      unicorn_master_pids - [pid]
+    end
+
+    # Make a "best attempt" to kill off rogue processes
+    def kill_rogues
+      rogues = rogue_pids
+      rogues.each do |rogue_master_pid|
+        begin
+          $stderr.puts "Found rogue unicorn master with pid: #{rogue_master_pid}. Attempting kill..."
+          Process.kill('TERM', rogue_master_pid)
+          sleep(0.2) if is_running?(rogue_master_pid)
+          if(is_running?(rogue_master_pid))
+            $stderr.puts "rogue unicorn master was signaled but appears to still be running: #{rogue_master_pid}"
+          else
+            $stderr.puts "rogue unicorn master was killed (PID: #{rogue_master_pid})"
+          end
+        rescue => e
+          $stderr.puts "Failed to kill rogue unicorn master process (PID: #{rogue_master_pid}). Reason: #{e}"
+        end
+      end
+    end
+
     # parent_pid:: Parent process ID
     # Returns array of child process IDs for the given parent
     def child_pids(parent_pid)
@@ -172,6 +213,27 @@ module RedUnicorn
           @opts[:exec_path] = test_path
         else
           raise FileNotFound.new "Failed to find executable unicorn. Set path is: #{@opts[:exec_path]}"
+        end
+      end
+    end
+
+    # time:: Seconds (or part of second) to sleep
+    # Returns more accurate sleep duration
+    def nap(time)
+      start = Time.now.to_f
+      sleep(time.to_f)
+      Time.now.to_f - start
+    end
+
+    # Forces all commands to kill rogues before running
+    def kill_rogues_before_commands(on=false)
+      if(on)
+        self.public_methods(false).each do |command|
+          alias_method "_#{command}".to_sym, command.to_sym
+          self.define_method(command) do
+            kill_rogues
+            self.send("_#{command}".to_sym)
+          end
         end
       end
     end
