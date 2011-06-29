@@ -47,7 +47,7 @@ def print_help
   puts 'RedUnicorn::Unicorn: Unicorn process interactions'
   puts "Usage: red_unicorn [opts] (#{ALLOWED_ACTIONS.keys.join(' | ')})"
   puts ' -h, --help                             Show this help screen'
-  puts ' -p, --pid /path/to/file.pid            Specify path to PID file (default: /var/run/unicorn/unicorn.pid)'
+  puts ' -p, --pid-file /path/to/file.pid       Specify path to PID file (default: /var/run/unicorn/unicorn.pid)'
   puts ' -x, --unicorn-exec /path/to/unicorn    Specify path to unicorn executable (default: /var/www/shared/bundle/bin/unicorn_rails)'
   puts ' -c, --unicorn-config /path/to/config   Specify path to unicorn configuration file (default: /etc/unicorn/app.rb)'
   puts ' -t, --timeout 30                       Specify timeout for running actions'
@@ -71,7 +71,7 @@ opts.each do |opt,arg|
       unicorn_hash[:unicorn_config] = arg.to_s
     when '--unicorn-exec'
       unicorn_hash[:exec_path] = arg.to_s
-    when '--pid'
+    when '--pid-file'
       unicorn_hash[:pid] = arg.to_s
     when '--env'
       unicorn_hash[:env] = arg.to_s

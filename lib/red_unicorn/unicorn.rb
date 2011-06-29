@@ -137,8 +137,10 @@ module RedUnicorn
       begin
         Process.kill(0, custom_pid || pid)
         true
-      rescue
+      rescue Errno::EPERM, Errno::ESRCH
         false
+      rescue => e
+        raise Unicornerror.new "#{e.class.name}: #{e}"
       end
     end
 

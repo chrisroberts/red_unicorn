@@ -10,7 +10,7 @@ provide zero downtime restarts.
   RedUnicorn::Unicorn: Unicorn process interactions
   Usage: red_unicorn [opts] (prolicide | status | slaughter | start | restart | reload | stop | birth)
    -h, --help                             Show this help screen
-   -p, --pid /path/to/file.pid            Specify path to PID file (default: /var/run/unicorn/unicorn.pid)
+   -p, --pid-file /path/to/file.pid       Specify path to PID file (default: /var/run/unicorn/unicorn.pid)
    -x, --unicorn-exec /path/to/unicorn    Specify path to unicorn executable (default: /var/www/shared/bundle/bin/unicorn_rails)
    -c, --unicorn-config /path/to/config   Specify path to unicorn configuration file (default: /etc/unicorn/app.rb)
    -t, --timeout 30                       Specify timeout for running actions
