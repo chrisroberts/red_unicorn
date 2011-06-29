@@ -140,7 +140,7 @@ module RedUnicorn
       rescue Errno::EPERM, Errno::ESRCH
         false
       rescue => e
-        raise Unicornerror.new "#{e.class.name}: #{e}"
+        raise UnicornError.new "#{e.class.name}: #{e}"
       end
     end
 
