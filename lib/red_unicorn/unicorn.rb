@@ -56,7 +56,7 @@ module RedUnicorn
 
     # Graceful restart
     def restart
-      process_is :running do
+      if(is_running?)
         original_pid = pid
         Process.kill('USR2', pid)
         waited = 0
@@ -87,6 +87,8 @@ module RedUnicorn
           raise NotRunning.new(errors.join(' '))
         end
         reopen_logs
+      else
+        start
       end
     end
 
