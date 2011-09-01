@@ -53,6 +53,7 @@ def print_help
   puts ' -t, --timeout 30                       Specify timeout for running actions'
   puts ' -g, --restart-grace 8                  Specify grace time to start replacement children (default: 8 seconds)'
   puts ' -e, --env production                   Specify environment (default: production)'
+  puts ' -k, --kill-rogues                      Kill rogue unicorn processes (PIDs not found in provided pid file)'
   puts 'Commands:'
   max_width = ALLOWED_ACTIONS.keys.map(&:to_s).map(&:length).max + 8
   ALLOWED_ACTIONS.each_pair do |action, message|
@@ -75,6 +76,8 @@ opts.each do |opt,arg|
       unicorn_hash[:pid] = arg.to_s
     when '--env'
       unicorn_hash[:env] = arg.to_s
+    when '--kill-rogues'
+      unicorn_hash[:kill_rogues] = true
     when '--help'
       print_help
       exit RETURN_CODES[:success]
