@@ -163,7 +163,7 @@ module RedUnicorn
     # parent_pid:: Parent process ID
     # Returns array of child process IDs for the given parent
     def child_pids(parent_pid)
-      process_list = %x{ps -eo pid,ppid | grep #{parent_pid}}
+      process_list = %x{ps -eo pid,ppid | grep #{parent_pid}}.split("\n")
       process_list.map(&:strip).find_all{|pr| pr.split.last == parent_pid.to_s }.map{|pr| pr.split.first.strip.to_i }
     end
 
