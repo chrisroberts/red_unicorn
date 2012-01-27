@@ -1,3 +1,6 @@
+== v1.1.5
+* Fix argument bug to allow overriding config file location
+
 == v1.1.4
 * Fix child pid discovery (thanks {Darrin}[http://github.com/dje])
 

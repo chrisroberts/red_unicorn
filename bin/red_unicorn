@@ -68,7 +68,7 @@ opts.each do |opt,arg|
     when '--restart-grace'
       unicorn_hash[:restart_grace] = arg.to_i
     when '--unicorn-config'
-      unicorn_hash[:unicorn_config] = arg.to_s
+      unicorn_hash[:config_path] = arg.to_s
     when '--unicorn-exec'
       unicorn_hash[:exec_path] = arg.to_s
     when '--pid-file'
