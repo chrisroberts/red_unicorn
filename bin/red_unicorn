@@ -7,6 +7,7 @@ require 'red_unicorn'
 require 'red_unicorn/unicorn'
 
 opts = GetoptLong.new(
+  ['--kind', '-k', GetoptLong::REQUIRED_ARGUMENT],
   ['--pid-file', '-p', GetoptLong::REQUIRED_ARGUMENT],
   ['--unicorn-exec', '-x', GetoptLong::REQUIRED_ARGUMENT],
   ['--unicorn-config', '-c', GetoptLong::REQUIRED_ARGUMENT],
@@ -53,6 +54,7 @@ def print_help
   puts ' -t, --timeout 30                       Specify timeout for running actions'
   puts ' -g, --restart-grace 8                  Specify grace time to start replacement children (default: 8 seconds)'
   puts ' -e, --env production                   Specify environment (default: production)'
+  puts ' -k, --kind (unicorn|gunicorn)          Specify kind of unicorn in use (default: unicorn)'
   puts 'Commands:'
   max_width = ALLOWED_ACTIONS.keys.map(&:to_s).map(&:length).max + 8
   ALLOWED_ACTIONS.each_pair do |action, message|
@@ -75,6 +77,8 @@ opts.each do |opt,arg|
       unicorn_hash[:pid] = arg.to_s
     when '--env'
       unicorn_hash[:env] = arg.to_s
+    when '--kind'
+      unicorn_hash[:kind] = arg.to_s
     when '--help'
       print_help
       exit RETURN_CODES[:success]
