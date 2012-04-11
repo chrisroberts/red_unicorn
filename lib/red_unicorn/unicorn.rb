@@ -1,4 +1,3 @@
-#TODO: Add method of checking for rouge unicorn process and killing them
 module RedUnicorn
 
   # Descriptive error classes
@@ -25,7 +24,8 @@ module RedUnicorn
         :config_path => '/etc/unicorn/app.rb',
         :action_timeout => 30,
         :restart_grace => 8,
-        :env => 'production'
+        :env => 'production',
+        :kind => 'unicorn'
       }.merge(opts)
       check_exec_path
     end
@@ -33,7 +33,7 @@ module RedUnicorn
     # Start a new unicorn process
     def start
       process_is :stopped do
-        %x{#{@opts[:exec_path]} --daemonize --env #{@opts[:env]} --config-file #{@opts[:config_path]}}
+        %x{#{@opts[:exec_path]} #{format_options}}
       end
     end
 
@@ -53,28 +53,33 @@ module RedUnicorn
 
     # Graceful restart
     def restart
-      process_is :running do
-        original_pid = pid
-        Process.kill('USR2', pid)
-        sleep(@opts[:restart_grace]) # give unicorn some breathing room
-        waited = 0
-        until((File.exists?(@opts[:pid]) && is_running? && !child_pids(pid).empty?) || waited > @opts[:action_timeout])
-          sleep_start = Time.now.to_f
-          sleep(0.2)
-          waited += Time.now.to_f - sleep_start
+      begin
+        process_is :running do
+          original_pid = pid
+          Process.kill('USR2', pid)
+          sleep(@opts[:restart_grace]) # give unicorn some breathing room
+          waited = 0
+          until((File.exists?(@opts[:pid]) && is_running? && !child_pids(pid).empty?) || waited > @opts[:action_timeout])
+            sleep_start = Time.now.to_f
+            sleep(0.2)
+            waited += Time.now.to_f - sleep_start
+          end
+          if(pid == original_pid || waited > @opts[:action_timeout])
+            raise UnicornError.new 'Failed to start new process'
+          end
+          Process.kill('QUIT', original_pid)
+          while(is_running?(original_pid) && waited < @opts[:action_timeout])
+            sleep_start = Time.now.to_f
+            sleep(0.2)
+            waited += Time.now.to_f - sleep_start
+          end
+          raise IsRunning.new 'Failed to stop original unicorn process' if is_running?(original_pid)
+          raise NotRunning.new 'Failed to start new unicorn process'  unless is_running?
+          reopen_logs
         end
-        if(pid == original_pid || waited > @opts[:action_timeout])
-          raise UnicornError.new 'Failed to start new process'
-        end
-        Process.kill('QUIT', original_pid)
-        while(is_running?(original_pid) && waited < @opts[:action_timeout])
-          sleep_start = Time.now.to_f
-          sleep(0.2)
-          waited += Time.now.to_f - sleep_start
-        end
-        raise IsRunning.new 'Failed to stop original unicorn process' if is_running?(original_pid)
-        raise NotRunning.new 'Failed to start new unicorn process'  unless is_running?
-        reopen_logs
+      rescue NotRunning
+        puts "WARN: #{@opts[:kind]} not currently running. Starting."
+        start
       end
     end
 
@@ -176,6 +181,18 @@ module RedUnicorn
         else
           raise FileNotFound.new "Failed to find executable unicorn. Set path is: #{@opts[:exec_path]}"
         end
+      end
+    end
+
+    # Formats options based on kind of unicorn
+    def format_options
+      case @opts[:kind].to_sym
+      when :unicorn
+        "--daemonize --env #{@opts[:env]} --config-file #{@opts[:config_path]} --pid-file #{@opts[:pid]}"
+      when :gunicorn
+        "--daemon --config #{@opts[:config_path]} --pid #{@opts[:pid]}"
+      else
+        raise UnicornError.new("Unknown unicorn type provided (#{kind}). Supported: unicorn, gunicorn")
       end
     end
   end
