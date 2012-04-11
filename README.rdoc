@@ -16,6 +16,7 @@ provide zero downtime restarts.
    -t, --timeout 30                       Specify timeout for running actions
    -g, --restart-grace 8                  Specify grace time to start replacement children (default: 8 seconds)
    -e, --env production                   Specify environment (default: production)
+   -k, --kind (unicorn|gunicorn)          Specify kind of unicorn in use (default: unicorn)
   Commands:
     prolicide:        Kill single worker process
     status:           Returns current unicorn status
@@ -33,6 +34,10 @@ unicorn the restart signal, it will wait until the new unicorn process has forke
 out workers before killing the original unicorn process. If no worker processes
 are started, the old unicorn process will be left running.
 
+=== Unicorn agnostic
+
+RedUnicorn is compatible with unicorn and gunicorn.
+
 == Bugs and Feature requests
 
 * Fork, make updates and send pull request
@@ -40,5 +45,5 @@ are started, the old unicorn process will be left running.
 
 == License
 
-Copyright (c) 2011 Chris Roberts <chrisroberts.code@gmail.com>
+Copyright (c) 2012 Chris Roberts <chrisroberts.code@gmail.com>
 Licensed under the MIT license (see LICENSE)
