@@ -13,5 +13,5 @@ module RedUnicorn
     end
   end
 
-  VERSION = Version.new('1.1.6')
+  VERSION = Version.new('1.1.7')
 end
