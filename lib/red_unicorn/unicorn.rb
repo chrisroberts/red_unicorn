@@ -188,7 +188,7 @@ module RedUnicorn
     def format_options
       case @opts[:kind].to_sym
       when :unicorn
-        "--daemonize --env #{@opts[:env]} --config-file #{@opts[:config_path]} --pid-file #{@opts[:pid]}"
+        "--daemonize --env #{@opts[:env]} --config-file #{@opts[:config_path]}"
       when :gunicorn
         "--daemon --config #{@opts[:config_path]} --pid #{@opts[:pid]}"
       else
